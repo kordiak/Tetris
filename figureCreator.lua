@@ -264,8 +264,6 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width, bottomRect
             figure.shadow = shadowCreator.new(figure, fields, size, figure.lb, figure.rb);
             figure.shadow.show();
         end
-
-
     end
     figure.postponement = 0;
 
@@ -942,8 +940,6 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width, bottomRect
             figure.rb = { x = maximalX, y = maximalY };
             figure.lb = { x = minimalX, y = minimalY };
         end
-
-
     end
     figure.moveDown = function(startY)
 
@@ -1028,8 +1024,9 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width, bottomRect
 
 
 
+        local yOfFirst = figure.first.field.y;
 
-    --- Find the lowest element
+        --- Find the lowest element
 
         local tabOfY = {}
         table.insert(tabOfY, figure.first.field);
@@ -1083,6 +1080,8 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width, bottomRect
                     figure.fourth.field.x = figure.fourth.field.x + horizontal;
                     figure.lb.x = figure.lb.x + horizontal;
                     figure.rb.x = figure.rb.x + horizontal;
+
+
                 end
             end
 
@@ -1115,7 +1114,7 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width, bottomRect
                 tr1 = transition.to(figure.first, { y = fields[figure.first.field.x][figure.first.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr1) end });
                 tr2 = transition.to(figure.second, { y = fields[figure.second.field.x][figure.second.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr2) end });
                 tr3 = transition.to(figure.third, { y = fields[figure.third.field.x][figure.third.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr3) end });
-                tr4 = transition.to(figure.fourth, { y = fields[figure.fourth.field.x][figure.fourth.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr4); figure.timeOfLastMove = system.getTimer();end });
+                tr4 = transition.to(figure.fourth, { y = fields[figure.fourth.field.x][figure.fourth.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr4); figure.timeOfLastMove = system.getTimer(); end });
 
 
 
@@ -1130,7 +1129,7 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width, bottomRect
                 turn = 0;
             end
 
-        elseif horizontal == 0 and turn == 0 and figure.isTimerOn == false and figure.first.field.x==figure.shadow.first.field.x and figure.first.field.y==figure.shadow.first.field.y then
+        elseif horizontal == 0 and turn == 0 and figure.isTimerOn == false or figure.first.field.x == figure.shadow.first.field.x and figure.first.field.y == figure.shadow.first.field.y then
 
             figure.freeze = true; --element stopped
 
@@ -1228,14 +1227,29 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width, bottomRect
 
 
             bottomRect:removeEventListener("touch", buttonFunction);
-            timer.performWithDelay(figure.postponement + 100, function() bottomRect:addEventListener("touch", buttonFunction); figure.removeMe(); end, 1);
+
+            timer.performWithDelay(figure.postponement + 10, function() if(figure~=nil)then bottomRect:addEventListener("touch", buttonFunction); figure.removeMe();end end, 1);
 
 
 
             timer.performWithDelay(figure.postponement, function() Runtime:dispatchEvent({ name = "elementStopped" }); end, 1);
+
+
+
+
+
         end
 
+
+
         figure.shadow.refreshPosition(figure.lb, figure.rb);
+
+
+
+
+
+
+
 
 
 

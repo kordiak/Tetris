@@ -57,6 +57,7 @@ function scene:show(event)
             if (event.phase == "began") then
                 local options={effect="fade",time=500};
                 if (event.target == sceneGroup.newGameLabel) then
+
                     composer.gotoScene("gameScene",options);
 
                  elseif(event.target==sceneGroup.highScoresLabel)then
@@ -72,6 +73,8 @@ function scene:show(event)
         sceneGroup.newGameLabel:addEventListener("touch", sceneGroup.touchManager);
         sceneGroup.highScoresLabel:addEventListener("touch", sceneGroup.touchManager);
         sceneGroup.optionsLabel:addEventListener("touch", sceneGroup.touchManager);
+
+
     end
 end
 

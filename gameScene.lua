@@ -68,9 +68,8 @@ function scene:show(event)
             width = (height / heightN) * widthN;
 
         elseif percentUpper < planedUpperGap and percentUpper > 0 then
-            print("TODO!")
+
         elseif percentUpper < 0 then
-            print("TODO!")
         end
 
         local fieldSize = width / widthN;
@@ -81,31 +80,34 @@ function scene:show(event)
         local bottomRect = display.newRect(display.screenOriginX + width / 2, display.actualContentHeight + display.screenOriginY - fieldSize, fieldSize * widthN, fieldSize * 2);
         bottomRect:setFillColor(1, 1, 1, 0);
         bottomRect.isHitTestable = true;
-
-
-
-
-        --todo: REMOVE!
-
         gapUpper = display.actualContentHeight - height;
-
         percentUpper = gapUpper * 100 / display.viewableContentHeight;
         local gapRight = display.actualContentWidth - width;
-        --- print(gapRight);
-
-        --print("UPPER GAP: ", percentUpper, height);
-
-        --- REMOVE
-
-
-        local clairvoyant = clairvoyantCreator.new(gapRight, gapUpper);
-        clairvoyant.show();
-        --- MAIN TABLE
-        local fields = {}
+        local tenOfWidth = display.actualContentWidth / 15;
 
         local startPositionY = display.actualContentHeight + display.screenOriginY + fieldSize / 2;
         local startPositionX = display.screenOriginX - fieldSize / 2;
 
+
+        local type = math.random(4, 4);
+
+        local randomField = math.random(1, widthN - 3);
+        local randomRotation = math.random(0, 3);
+
+
+
+        local clairvoyant;
+        local fields = {};
+        local topBar;
+        local scoresEditor;
+        local bonus;
+        local manageMovements;
+        local label;
+        local figures = {};
+        local sound;
+        local destructor;
+        local texto;
+        local label;
         for x = 1, widthN do
             fields[x] = {}
             for y = 1, heightN do
@@ -119,11 +121,8 @@ function scene:show(event)
             end
         end
 
-        local type = math.random(4, 4);
-
-        local randomField = math.random(1, widthN - 3);
-        local randomRotation = math.random(0, 3);
-
+        clairvoyant = clairvoyantCreator.new(gapRight, gapUpper);
+        clairvoyant.show();
         local randomNumber = function()
 
             local y = 0;
@@ -155,16 +154,10 @@ function scene:show(event)
                 clairvoyant.drawNew("line_|", randomField, y);
                 for i = 1, randomRotation do clairvoyant.figure.turn(); end
             end
-        --[[
-            print("TYPE: ", type);
-            print("ROTATION: ", randomRotation);
-            print("POSITION X:", randomField);
-            print("POSITION Y:", y)
-            --]]
         end
-        local manageMovements;
+
         local lastPosition = 0;
-        local tenOfWidth = display.actualContentWidth / 15;
+
         local manageMovements = function(event)
             if (event.target ~= bottomRect) then
                 if (event.phase == "began") then
@@ -195,7 +188,7 @@ function scene:show(event)
             end
             return true;
         end
-        local sound = soundCreator.new("settings.json")
+        sound = soundCreator.new("settings.json")
         local finish = false;
         local createRandom = function(x, y)
 
@@ -242,6 +235,17 @@ function scene:show(event)
 
 
             then
+                display.remove(figure.first);
+                display.remove(figure.second);
+                display.remove(figure.third);
+                display.remove(figure.fourth);
+
+
+
+
+                bottomRect:removeEventListener("touch", manageMovements);
+
+
                 print("CANT'T CREATE");
                 finish = true;
 
@@ -255,123 +259,127 @@ function scene:show(event)
             return figure;
         end
         local figureGenerator;
-
-
-        local label;
-        local figures = {}
-        --local isBlocked = false;
-        --local timeOfLastMove = 0;
-
-
         local figureGenerator = function()
 
 
-
-
-
-
+            table.insert(figures, createRandom(widthN / 2, heightN));
+            local figure = figures[#figures];
 
             if (finish == false) then
-                table.insert(figures, createRandom(widthN / 2, heightN));
                 figures[#figures].move(1, 0);
+
+
                 randomNumber();
+            else
+                figures[#figures].shadow.removeMe();
+                destructor();
             end
         end
 
 
-
-
-
-
-
-
-
-        Runtime:addEventListener("touch", manageMovements)
-
-        bottomRect:addEventListener("touch", manageMovements);
-
-
-
         figureGenerator();
-        local bonus = bonusCreator.new(fields, bottomRect, manageMovements, sound.playSound);
+        --- BONUS-----------------------
+        bonus = bonusCreator.new(fields, bottomRect, manageMovements, sound.playSound);
         bonus.show();
-
-        local scoresEditor = scoresEditorCreator.new("scores.json");
-        --scoresEditor.read();
-        --scoresEditor.encode();
-
-
-        local topBar = topBarCreate.new(gapUpper, bonus.pointListener, scoresEditor.refresh);
+        --- TOPBAR----------------------
+        scoresEditor = scoresEditorCreator.new("scores.json");
+        topBar = topBarCreate.new(gapUpper, bonus.pointListener, scoresEditor.refresh);
         topBar.show();
 
 
-
+        Runtime:addEventListener("touch", manageMovements);
+        bottomRect:addEventListener("touch", manageMovements);
         Runtime:addEventListener("elementStopped", bonus.newFigureListener)
         Runtime:addEventListener("newFigure", figureGenerator)
 
-
-        --timer.performWithDelay(2000,function() topBar.removeMe() end,1)
-        local label = display.newText("", display.screenOriginX + 100, display.screenOriginY + 20, GROBOLD, 25)
+        texto = function()
+            collectgarbage()
+            label.text = "Memory: " .. (math.round(collectgarbage("count") * 1000)) / 1000 .. "  Texture: " .. (math.round(system.getInfo("textureMemoryUsed") / 1000) * 1000) / 1000
+            return true;
+        end
+        label = display.newText("", display.screenOriginX + 100, display.screenOriginY + 20, native.systemFontBold, 25)
         label.anchorX = 0
-        function texto()
 
 
-            --print(system.getTimer()- figures[#figures].timeOfLastMove)
-            print(finish)
-            if (figures ~= nil and #figures ~= 0 or finish) then
+        Runtime:addEventListener("enterFrame", texto)
 
-                if ( finish) then
-                    topBar.removeMe();
-                    print("KONIEC")
-                    Runtime:removeEventListener("touch", manageMovements);
-                    Runtime:removeEventListener("elementStopped", bonus.nerFigureListener);
-                    Runtime:removeEventListener("newFigure", figureGenerator);
-                    bottomRect:removeEventListener("touch", manageMovements);
-                    finish = false;
-                    clairvoyant.clearField();
-                    if (figures ~= nil and #figures ~= 0) then
+        destructor = function()
+
+            Runtime:removeEventListener("enterFrame", texto);
+            Runtime:removeEventListener("touch", manageMovements);
+            Runtime:removeEventListener("elementStopped", bonus.newFigureListener);
+            Runtime:removeEventListener("newFigure", figureGenerator);
+            bottomRect:removeEventListener("touch", manageMovements);
+            transition.cancel();
+
+            finish = true;
+            local destroyAfterPeroidOfTime = function()
+                topBar.removeMe();
+                print("KONIEC")
+                clairvoyant.clearField();
+                if (figures ~= nil and #figures ~= 0) then
+
+                    for i = 1, #figures, -1 do
+
+                        display.remove(figures[i].first);
+                        display.remove(figures[i].second);
+                        display.remove(figures[i].third);
+                        display.remove(figures[i].fourth);
 
 
-                        for i = 1, #figures, -1 do
 
-                            figures[i].first:removeSelf();
-                            figures[i].second:removeSelf();
-                            figures[i].third:removeSelf();
-                            figures[i].fourth:removeSelf();
-
+                        if (figures[i] ~= nil) then
                             figures[i].removeMe();
                             figures[i] = nil;
                         end
                     end
+                end
 
-                    figures = nil;
-                    for i = 1, widthN do
-                        for j = 1, heightN do
-                            if fields[i][j].isFree ~= true and fields[i][j].element ~= nil then
-                                fields[i][j].element:removeSelf();
-                                fields[i][j].element = nil;
-                                fields[i][j].isFree = true;
-                            end
+
+                figures = nil;
+                for i = 1, widthN do
+                    for j = 1, heightN do
+                        if fields[i][j].isFree ~= true and fields[i][j].element ~= nil then
+                            display.remove(fields[i][j].element);
+                            --fields[i][j].element:removeSelf();
+                            fields[i][j].element = nil;
+                            fields[i][j].isFree = true;
                         end
                     end
-                    --Runtime:removeEventListener("enterFrame",texto);
-                    sound.removeMe();
-                else
-                    table.remove(figures, #figures);
                 end
+
+                sound.removeMe();
+                clairvoyant.removeMe();
+                display.remove(mainfield);
+
+                bonus.removeMe();
+
+                randomNumber = nil;
+                figureGenerator = nil;
+                createRandom = nil;
+
+                texto = nil;
+                finish = nil;
+                local scores = topBar.score;
+
+
+                composer.gotoScene("endScene", { effect = "fade", time = 1000, params = { score = scores } });
             end
 
-
-            collectgarbage()
-            label.text = "Memory: " .. (math.round(collectgarbage("count") * 1000)) / 1000 .. "  Texture: " .. (math.round(system.getInfo("textureMemoryUsed") / 1000) * 1000) / 1000
+            timer.performWithDelay(2000, destroyAfterPeroidOfTime, 1);
         end
 
-        Runtime:addEventListener("enterFrame", texto)
+        sceneGroup:insert(label);
+        sceneGroup:insert(mainfield);
     end
 end
 
 
--- "scene:hide()"
+
+
+
+
+
 function scene:hide(event)
 
     local sceneGroup = self.view

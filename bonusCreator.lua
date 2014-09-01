@@ -114,7 +114,7 @@ bonusCreator.new = function(fields, bootomRect, bottomRectFunction,playSound)
                 end --- /for do
             elseif bonus.working == true then
                 Runtime:dispatchEvent({ name = "newFigure" });
-                timer.performWithDelay(100, function() bonus.working = false; end, 1)
+               bonus.workingTimer= timer.performWithDelay(100, function() bonus.working = false; end, 1)
             else
                 bonus.working = false;
             end --- /if
@@ -144,10 +144,22 @@ bonusCreator.new = function(fields, bootomRect, bottomRectFunction,playSound)
     end --- Bringing down elements from above remove line
     bonus.newFigureListener = function(event)
 
-        timer.performWithDelay(100, function() if (bonus.working == false) then Runtime:dispatchEvent({ name = "newFigure" }); end end, 1);
+       bonus.dispatchTimer=timer.performWithDelay(100, function() if (bonus.working == false) then Runtime:dispatchEvent({ name = "newFigure" }); end end, 1);
     end
 
 
+    bonus.removeMe=function()
+
+        if(bonus.dispatchTimer~=nil)then
+        timer.cancel(bonus.dispatchTimer);
+        end
+        if(bonus.workingTimer~=nil)then
+        timer.cancel(bonus.workingTimer);
+        end
+        bonus=nil;
+
+
+    end
     return bonus;
 end
 

@@ -49,7 +49,7 @@ scoresEditorCreator.new = function(fileName)
     scoresEditor.decode = function()
 
         if scoresEditor.string ~= nil then
-          --  local frame = { scores = { 12, 323, 312, 12, 2323, 23132 } };
+            --  local frame = { scores = { 12, 323, 312, 12, 2323, 23132 } };
             scoresEditor.string = json.decode(scoresEditor.string);
         end
     end
@@ -64,23 +64,23 @@ scoresEditorCreator.new = function(fileName)
         else
             scoresEditor.decode();
             table.insert(scoresEditor.string.scores, points);
-            local comparer=function(a,b)
-            return a>b;
+            local comparer = function(a, b)
+                return a > b;
             end
-            table.sort(scoresEditor.string.scores,comparer);
-            if #scoresEditor.string.scores >10 then
-                table.remove(scoresEditor.string.scores,11);
-                end
+            table.sort(scoresEditor.string.scores, comparer);
+            if #scoresEditor.string.scores > 10 then
+                table.remove(scoresEditor.string.scores, 11);
+            end
         end
-
-
-        scoresEditor.encode();
-        scoresEditor.write();
-        scoresEditor.removeMe();
     end
+    scoresEditor.encode();
+    scoresEditor.write();
+
+
+
     scoresEditor.removeMe = function()
-        scoresEditor.string=nil;
-        scoresEditor=nil;
+        scoresEditor.string = nil;
+        scoresEditor = nil;
     end
 
 

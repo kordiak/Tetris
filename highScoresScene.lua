@@ -39,6 +39,7 @@ end
 
 -- "scene:show()"
 function scene:show(event)
+    composer.removeHidden();
 
     local sceneGroup = self.view
     local phase = event.phase
