@@ -7,13 +7,13 @@
 --
 
 
-local composer = require( "composer" )
+local composer = require("composer")
 local figureCreator = require("figureCreator");
 local clairvoyantCreator = require("clairvoyantCreator");
-local topBarCreate=require("TopBarCreator");
-local bonusCreator=require("bonusCreator");
-local scoresEditorCreator=require("scoresEditorCreator");
-local soundCreator=require("soundCreator");
+local topBarCreate = require("TopBarCreator");
+local bonusCreator = require("bonusCreator");
+local scoresEditorCreator = require("scoresEditorCreator");
+local soundCreator = require("soundCreator");
 
 local heightN = 22;
 local widthN = 10;
@@ -33,7 +33,7 @@ local scene = composer.newScene()
 
 
 -- "scene:create()"
-function scene:create( event )
+function scene:create(event)
 
     local sceneGroup = self.view
 
@@ -43,14 +43,14 @@ end
 
 
 -- "scene:show()"
-function scene:show( event )
+function scene:show(event)
 
     local sceneGroup = self.view
     local phase = event.phase
 
-    if ( phase == "will" ) then
+    if (phase == "will") then
         -- Called when the scene is still off screen (but is about to come on screen).
-    elseif ( phase == "did" ) then
+    elseif (phase == "did") then
 
 
         --- POSITIONING MAIN FRAME
@@ -181,9 +181,9 @@ function scene:show( event )
                      --]]
 
                 elseif (event.phase == "moved") then
-                    local movementLength=lastPosition-event.x;
-                    if(math.abs(movementLength)>tenOfWidth and movementLength>0) then Runtime:dispatchEvent({ name = "Left" }); lastPosition=event.x
-                    elseif (math.abs(movementLength)>tenOfWidth and movementLength<0) then Runtime:dispatchEvent({name="Right"}); lastPosition=event.x
+                    local movementLength = lastPosition - event.x;
+                    if (math.abs(movementLength) > tenOfWidth and movementLength > 0) then Runtime:dispatchEvent({ name = "Left" }); lastPosition = event.x
+                    elseif (math.abs(movementLength) > tenOfWidth and movementLength < 0) then Runtime:dispatchEvent({ name = "Right" }); lastPosition = event.x
                     end
 
 
@@ -195,7 +195,8 @@ function scene:show( event )
             end
             return true;
         end
-        local sound=soundCreator.new("settings.json")
+        local sound = soundCreator.new("settings.json")
+        local finish = false;
         local createRandom = function(x, y)
 
             local figure;
@@ -203,7 +204,7 @@ function scene:show( event )
             if (type == 4) then
                 if (randomRotation == 1 or randomRotation == 3) then y = y - 3 end;
 
-                figure = figureCreator.new("line", fieldSize, fields, randomField, y, width,bottomRect,manageMovements,sound.playSound);
+                figure = figureCreator.new("line", fieldSize, fields, randomField, y, width, bottomRect, manageMovements, sound.playSound);
                 figure.show();
                 for i = 1, randomRotation do figure.turn(); end
 
@@ -211,23 +212,45 @@ function scene:show( event )
                 y = y - 1;
 
                 if (randomRotation == 1 or randomRotation == 3) then y = y - 1 end;
-                figure = figureCreator.new("line|_", fieldSize, fields, randomField, y, width,bottomRect,manageMovements,sound.playSound);
+                figure = figureCreator.new("line|_", fieldSize, fields, randomField, y, width, bottomRect, manageMovements, sound.playSound);
                 figure.show();
 
                 for i = 1, randomRotation do figure.turn(); end
 
             elseif (type == 3) then
                 y = y;
-                figure = figureCreator.new("halfCross", fieldSize, fields, randomField, y, width,bottomRect,manageMovements,sound.playSound);
+                figure = figureCreator.new("halfCross", fieldSize, fields, randomField, y, width, bottomRect, manageMovements, sound.playSound);
                 figure.show();
                 for i = 1, randomRotation do figure.turn(); end
             elseif (type == 2) then
 
                 if (randomRotation == 1 or randomRotation == 3) then y = y - 1 end;
-                figure = figureCreator.new("line_|", fieldSize, fields, randomField, y, width,bottomRect,manageMovements,sound.playSound);
+                figure = figureCreator.new("line_|", fieldSize, fields, randomField, y, width, bottomRect, manageMovements, sound.playSound);
                 figure.show();
                 for i = 1, randomRotation do figure.turn(); end
             end
+
+
+
+            figure.shadow.refreshPosition(figure.lb, figure.rb);
+
+            if (fields[figure.first.field.x][figure.first.field.y].isFree == false or
+                    fields[figure.second.field.x][figure.second.field.y].isFree == false or
+                    fields[figure.third.field.x][figure.third.field.y].isFree == false or
+                    fields[figure.fourth.field.x][figure.fourth.field.y].isFree == false
+                    or (figure.first.field.x == figure.shadow.first.field.x and figure.first.field.y == figure.shadow.first.field.y))
+
+
+            then
+                print("CANT'T CREATE");
+                finish = true;
+
+
+            else
+            end
+
+
+
 
             return figure;
         end
@@ -238,16 +261,21 @@ function scene:show( event )
         local figures = {}
         --local isBlocked = false;
         --local timeOfLastMove = 0;
+
+
         local figureGenerator = function()
 
 
 
-            table.insert(figures, createRandom(widthN / 2, heightN));
-
-            figures[#figures].move(1, 0);
 
 
-            randomNumber();
+
+
+            if (finish == false) then
+                table.insert(figures, createRandom(widthN / 2, heightN));
+                figures[#figures].move(1, 0);
+                randomNumber();
+            end
         end
 
 
@@ -265,15 +293,15 @@ function scene:show( event )
 
 
         figureGenerator();
-        local bonus=bonusCreator.new(fields,bottomRect,manageMovements,sound.playSound);
+        local bonus = bonusCreator.new(fields, bottomRect, manageMovements, sound.playSound);
         bonus.show();
 
-        local scoresEditor=scoresEditorCreator.new("scores.json");
+        local scoresEditor = scoresEditorCreator.new("scores.json");
         --scoresEditor.read();
         --scoresEditor.encode();
 
 
-        local topBar=topBarCreate.new(gapUpper,bonus.pointListener,scoresEditor.refresh);
+        local topBar = topBarCreate.new(gapUpper, bonus.pointListener, scoresEditor.refresh);
         topBar.show();
 
 
@@ -283,31 +311,39 @@ function scene:show( event )
 
 
         --timer.performWithDelay(2000,function() topBar.removeMe() end,1)
-        local label = display.newText("", display.screenOriginX+100, display.screenOriginY + 20, GROBOLD, 25)
+        local label = display.newText("", display.screenOriginX + 100, display.screenOriginY + 20, GROBOLD, 25)
         label.anchorX = 0
         function texto()
 
 
             --print(system.getTimer()- figures[#figures].timeOfLastMove)
-            if (figures ~= nil and #figures ~= 0) then
-                if (system.getTimer() - figures[#figures].timeOfLastMove > 5000) then
+            print(finish)
+            if (figures ~= nil and #figures ~= 0 or finish) then
+
+                if ( finish) then
                     topBar.removeMe();
                     print("KONIEC")
-                    Runtime:removeEventListener("touch", manageMovements)
+                    Runtime:removeEventListener("touch", manageMovements);
                     Runtime:removeEventListener("elementStopped", bonus.nerFigureListener);
-                    Runtime:removeEventListener("newFigure", figureGenerator)
-
+                    Runtime:removeEventListener("newFigure", figureGenerator);
+                    bottomRect:removeEventListener("touch", manageMovements);
+                    finish = false;
                     clairvoyant.clearField();
-                    for i = 1, #figures, -1 do
+                    if (figures ~= nil and #figures ~= 0) then
 
-                        figures[i].first:removeSelf();
-                        figures[i].second:removeSelf();
-                        figures[i].third:removeSelf();
-                        figures[i].fourth:removeSelf();
 
-                        figures[i].removeMe();
-                        figures[i] = nil;
+                        for i = 1, #figures, -1 do
+
+                            figures[i].first:removeSelf();
+                            figures[i].second:removeSelf();
+                            figures[i].third:removeSelf();
+                            figures[i].fourth:removeSelf();
+
+                            figures[i].removeMe();
+                            figures[i] = nil;
+                        end
                     end
+
                     figures = nil;
                     for i = 1, widthN do
                         for j = 1, heightN do
@@ -331,30 +367,28 @@ function scene:show( event )
         end
 
         Runtime:addEventListener("enterFrame", texto)
-
-
     end
 end
 
 
 -- "scene:hide()"
-function scene:hide( event )
+function scene:hide(event)
 
     local sceneGroup = self.view
     local phase = event.phase
 
-    if ( phase == "will" ) then
+    if (phase == "will") then
         -- Called when the scene is on screen (but is about to go off screen).
         -- Insert code here to "pause" the scene.
         -- Example: stop timers, stop animation, stop audio, etc.
-    elseif ( phase == "did" ) then
+    elseif (phase == "did") then
         -- Called immediately after scene goes off screen.
     end
 end
 
 
 -- "scene:destroy()"
-function scene:destroy( event )
+function scene:destroy(event)
 
     local sceneGroup = self.view
 
@@ -367,10 +401,10 @@ end
 -- -------------------------------------------------------------------------------
 
 -- Listener setup
-scene:addEventListener( "create", scene )
-scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
+scene:addEventListener("create", scene)
+scene:addEventListener("show", scene)
+scene:addEventListener("hide", scene)
+scene:addEventListener("destroy", scene)
 
 -- -------------------------------------------------------------------------------
 

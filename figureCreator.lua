@@ -13,7 +13,7 @@ local shadowCreator = require("shadowCreator");
 local figureCreator = {}
 
 
-figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,buttonFunction,playSound)
+figureCreator.new = function(kindOfFigure, size, fields, x, y, width, bottomRect, buttonFunction, playSound)
 
 
 
@@ -264,16 +264,22 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
             figure.shadow = shadowCreator.new(figure, fields, size, figure.lb, figure.rb);
             figure.shadow.show();
         end
+
+
     end
-    figure.postponement=0;
+    figure.postponement = 0;
 
     --ROTATION
     figure.state = 0
 
     --ABILITY TO
     figure.freeze = false;
-    figure.timeOfLastMove = 0; --- Let's enterframe listener to know that all figures was stopped for longer time
+    figure.timeOfLastMove = system.getTimer(); --- Let's enterframe listener to know that all figures was stopped for longer time
     figure.turn = function(direction)
+
+
+
+
 
         if (kindOfFigure == "halfCross") then
 
@@ -936,6 +942,8 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
             figure.rb = { x = maximalX, y = maximalY };
             figure.lb = { x = minimalX, y = minimalY };
         end
+
+
     end
     figure.moveDown = function(startY)
 
@@ -1007,12 +1015,7 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
             end
             row = nil;
 
-            if row==nil then playSound(2); end
-
-
-
-
-
+            if row == nil then playSound(2); end
         end
 
 
@@ -1020,7 +1023,6 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
 
 
         start();
-
     end
     figure.move = function(down, horizontal, turn)
 
@@ -1113,10 +1115,10 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
                 tr1 = transition.to(figure.first, { y = fields[figure.first.field.x][figure.first.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr1) end });
                 tr2 = transition.to(figure.second, { y = fields[figure.second.field.x][figure.second.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr2) end });
                 tr3 = transition.to(figure.third, { y = fields[figure.third.field.x][figure.third.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr3) end });
-                tr4 = transition.to(figure.fourth, { y = fields[figure.fourth.field.x][figure.fourth.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr4) --[[figure.turn() --]] end });
+                tr4 = transition.to(figure.fourth, { y = fields[figure.fourth.field.x][figure.fourth.field.y].y, time = figure.timeOfMove, onComplete = function() onComplete(tr4); figure.timeOfLastMove = system.getTimer();end });
 
 
-                figure.timeOfLastMove = system.getTimer();
+
 
 
 
@@ -1128,7 +1130,7 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
                 turn = 0;
             end
 
-        elseif horizontal == 0 and turn == 0 and figure.isTimerOn == false then
+        elseif horizontal == 0 and turn == 0 and figure.isTimerOn == false and figure.first.field.x==figure.shadow.first.field.x and figure.first.field.y==figure.shadow.first.field.y then
 
             figure.freeze = true; --element stopped
 
@@ -1145,63 +1147,56 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
 
 
             local counter = { 10, 10, 10, 10 };
-            local yY={};
+            local yY = {};
             for i = 1, #tabOfY do
 
 
 
                 for j = 1, 10 do
-                    if (fields[j][tabOfY[i].y].isFree == false ) then
+                    if (fields[j][tabOfY[i].y].isFree == false) then
                         counter[i] = counter[i] - 1;
-
-
                     end
                 end
 
-                if(counter[i]==0 and table.indexOf(yY,tabOfY[i].y)==nil)then
+                if (counter[i] == 0 and table.indexOf(yY, tabOfY[i].y) == nil) then
 
-                    table.insert(yY,tabOfY[i].y)
+                    table.insert(yY, tabOfY[i].y)
                 else
 
-                    counter[i]=10;
-
+                    counter[i] = 10;
                 end
-
-
-
             end
 
-            local blinked=false;
+            local blinked = false;
 
             local newTabOfY = {};
             if (counter[1] == 0) then
                 figure.blinkAndRemove(fields, figure.first.field.y);
                 table.insert(newTabOfY, figure.first.field.y);
-                blinked=true;
+                blinked = true;
             end
-            if (counter[2] == 0 ) then
+            if (counter[2] == 0) then
                 figure.blinkAndRemove(fields, figure.second.field.y);
                 table.insert(newTabOfY, figure.second.field.y);
-                blinked=true;
-
+                blinked = true;
             end
-            if (counter[3] == 0 ) then
+            if (counter[3] == 0) then
                 figure.blinkAndRemove(fields, figure.third.field.y);
                 table.insert(newTabOfY, figure.third.field.y);
-                blinked=true;
+                blinked = true;
             end
-            if (counter[4] == 0 ) then
+            if (counter[4] == 0) then
                 figure.blinkAndRemove(fields, figure.fourth.field.y);
                 table.insert(newTabOfY, figure.fourth.field.y);
-                blinked=true;
+                blinked = true;
             end
 
             local comparer = function(a, b)
                 return a > b;
             end
 
-            if(blinked)then
-                figure.postponement=figure.postponement+300;
+            if (blinked) then
+                figure.postponement = figure.postponement + 300;
             end
 
 
@@ -1209,7 +1204,7 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
 
 
 
-            blinked=false;
+            blinked = false;
 
 
 
@@ -1222,19 +1217,18 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
                     timer.performWithDelay(350, function() figure.moveDown(newTabOfY[i]); figure.isTimerOn = false end, 1);
 
                     last = newTabOfY[i];
-                    blinked=true;
+                    blinked = true;
                 end
-
             end
 
-            if(blinked)then
-                figure.postponement=figure.postponement+360;
+            if (blinked) then
+                figure.postponement = figure.postponement + 360;
             end
 
 
 
-            bottomRect:removeEventListener("touch",buttonFunction);
-            timer.performWithDelay(figure.postponement+100,function()  bottomRect:addEventListener("touch",buttonFunction); figure.removeMe(); end , 1);
+            bottomRect:removeEventListener("touch", buttonFunction);
+            timer.performWithDelay(figure.postponement + 100, function() bottomRect:addEventListener("touch", buttonFunction); figure.removeMe(); end, 1);
 
 
 
@@ -1242,6 +1236,9 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
         end
 
         figure.shadow.refreshPosition(figure.lb, figure.rb);
+
+
+
 
 
     --figure.shadow.redraw();
@@ -1273,10 +1270,12 @@ figureCreator.new = function(kindOfFigure, size, fields, x, y, width,bottomRect,
             figure.bigRect:removeEventListener("touch", figure.leftRightListener);
         end
     end
+
+
     figure.removeMe = function()
 
 
-        Runtime:dispatchEvent({name="addPoint",value=figure.howManyLines*10});
+        Runtime:dispatchEvent({ name = "addPoint", value = figure.howManyLines * 10 });
         Runtime:removeEventListener("Left", figure.leftRightListener);
         Runtime:removeEventListener("Right", figure.leftRightListener);
         Runtime:removeEventListener("fastDown", figure.leftRightListener);

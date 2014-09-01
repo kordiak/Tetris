@@ -20,11 +20,11 @@ bonusCreator.new = function(fields, bootomRect, bottomRectFunction,playSound)
 
     local bonus = {};
     local clearyY = function()
-        local howmuch = #bonus.yY; --- //Clear table of rows
+        local howmuch = #bonus.yY;
         for i = howmuch, 1, -1 do
             table.remove(bonus.yY, i)
         end
-    end
+    end -- //Clear table of rows
     local checkIfExplosionIsPossible = function()
 
 
@@ -42,7 +42,7 @@ bonusCreator.new = function(fields, bootomRect, bottomRectFunction,playSound)
         else
             return false
         end
-    end
+    end --// if height is between 1-3.
     local flyMeToTheMoon = function(field)
 
 
@@ -75,7 +75,7 @@ bonusCreator.new = function(fields, bootomRect, bottomRectFunction,playSound)
         local trans;
         trans = transition.to(field.element, { time = 400, alpha = 0, x = x, y = y, onComplete = function() onComplete(field, trans) end });
     end
-    bonus.working = false;
+    bonus.working = false;  --//ensure that the figure won't be created
     bonus.counterOfCalling = 0;
     bonus.show = function()
 
