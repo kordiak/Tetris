@@ -3,7 +3,6 @@
 --
 --
 -----------------------------------------------------------------------------------------
-
 display.setStatusBar(display.HiddenStatusBar)
 -- Your code here
 local composer=require("composer");
@@ -19,7 +18,7 @@ local topBarCreate=require("TopBarCreator");
 local bonusCreator=require("bonusCreator");
 local scoresEditorCreator=require("scoresEditorCreator");
 
-
+local zmianna=10;
 local heightN = 22;
 local widthN = 10;
 local planedUpperGap = 5
